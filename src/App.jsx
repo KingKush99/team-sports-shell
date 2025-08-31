@@ -318,35 +318,33 @@ const SlotsGame = ({ isOpen, onClose }) => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Number of Reels</label>
-              <div className="flex space-x-2">
+              <select
+                value={numReels}
+                onChange={(e) => changeNumReels(parseInt(e.target.value))}
+                disabled={isSpinning}
+                className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
+              >
                 {reelOptions.map((num) => (
-                  <Button
-                    key={num}
-                    onClick={() => changeNumReels(num)}
-                    variant={numReels === num ? "default" : "outline"}
-                    size="sm"
-                    disabled={isSpinning}
-                  >
-                    {num}
-                  </Button>
+                  <option key={num} value={num}>
+                    {num} Reels
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Bet Amount</label>
-              <div className="flex space-x-2">
+              <select
+                value={betAmount}
+                onChange={(e) => setBetAmount(parseInt(e.target.value))}
+                disabled={isSpinning}
+                className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
+              >
                 {betOptions.map((amount) => (
-                  <Button
-                    key={amount}
-                    onClick={() => setBetAmount(amount)}
-                    variant={betAmount === amount ? "default" : "outline"}
-                    size="sm"
-                    disabled={isSpinning}
-                  >
-                    {amount}
-                  </Button>
+                  <option key={amount} value={amount}>
+                    {amount} Credits
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
           </div>
 
@@ -419,11 +417,69 @@ const Chatbot = ({ isOpen, onClose }) => {
   const [selectedLanguage, setSelectedLanguage] = useState('English')
   const [isRecording, setIsRecording] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState([])
+  const [isListening, setIsListening] = useState(false)
+  const [speechRecognition, setSpeechRecognition] = useState(null)
 
   const languages = [
     'English', 'Mandarin', 'Hindi', 'Spanish', 'French', 
     'Arabic', 'Bengali', 'Russian', 'Portuguese', 'Japanese'
   ]
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      const recognition = new SpeechRecognition()
+      
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = getLanguageCode(selectedLanguage)
+      
+      recognition.onstart = () => {
+        setIsListening(true)
+      }
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        setInputText(transcript)
+        setIsListening(false)
+      }
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error)
+        setIsListening(false)
+      }
+      
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+      
+      setSpeechRecognition(recognition)
+    }
+  }, [selectedLanguage])
+
+  const getLanguageCode = (language) => {
+    const languageCodes = {
+      'English': 'en-US',
+      'Spanish': 'es-ES',
+      'French': 'fr-FR',
+      'Mandarin': 'zh-CN',
+      'Hindi': 'hi-IN',
+      'Arabic': 'ar-SA',
+      'Bengali': 'bn-BD',
+      'Russian': 'ru-RU',
+      'Portuguese': 'pt-BR',
+      'Japanese': 'ja-JP'
+    }
+    return languageCodes[language] || 'en-US'
+  }
+
+  const startSpeechRecognition = () => {
+    if (speechRecognition && !isListening) {
+      speechRecognition.lang = getLanguageCode(selectedLanguage)
+      speechRecognition.start()
+    }
+  }
 
   const sendMessage = () => {
     if (!inputText.trim()) return
@@ -473,6 +529,42 @@ const Chatbot = ({ isOpen, onClose }) => {
         "让我帮您了解NHL信息。",
         "我可以帮您查看统计数据、比分和球队信息。",
         "您想了解更多关于您最喜欢的球队吗？"
+      ],
+      'Hindi': [
+        "हॉकी के बारे में यह एक बेहतरीन सवाल है!",
+        "मैं आपको NHL की जानकारी में मदद कर सकता हूं।",
+        "मैं आपको आंकड़े, स्कोर और टीम की जानकारी में सहायता कर सकता हूं।",
+        "क्या आप अपनी पसंदीदा टीम के बारे में और जानना चाहेंगे?"
+      ],
+      'Arabic': [
+        "هذا سؤال رائع حول الهوكي!",
+        "دعني أساعدك بمعلومات NHL.",
+        "يمكنني مساعدتك في الإحصائيات والنتائج ومعلومات الفريق.",
+        "هل تريد معرفة المزيد عن فريقك المفضل؟"
+      ],
+      'Bengali': [
+        "হকি সম্পর্কে এটি একটি দুর্দান্ত প্রশ্ন!",
+        "আমি আপনাকে NHL তথ্য দিয়ে সাহায্য করতে পারি।",
+        "আমি আপনাকে পরিসংখ্যান, স্কোর এবং দলের তথ্য দিয়ে সহায়তা করতে পারি।",
+        "আপনি কি আপনার প্রিয় দল সম্পর্কে আরও জানতে চান?"
+      ],
+      'Russian': [
+        "Это отличный вопрос о хоккее!",
+        "Позвольте мне помочь вам с информацией о НХЛ.",
+        "Я могу помочь вам со статистикой, счетами и информацией о командах.",
+        "Хотели бы вы узнать больше о своей любимой команде?"
+      ],
+      'Portuguese': [
+        "Essa é uma ótima pergunta sobre hockey!",
+        "Deixe-me ajudá-lo com informações da NHL.",
+        "Posso ajudá-lo com estatísticas, pontuações e informações da equipe.",
+        "Gostaria de saber mais sobre seu time favorito?"
+      ],
+      'Japanese': [
+        "ホッケーについての素晴らしい質問ですね！",
+        "NHLの情報でお手伝いさせていただきます。",
+        "統計、スコア、チーム情報でお手伝いできます。",
+        "お気に入りのチームについてもっと知りたいですか？"
       ]
     }
 
@@ -615,6 +707,14 @@ const Chatbot = ({ isOpen, onClose }) => {
               placeholder={`Type your message in ${selectedLanguage}...`}
               className="flex-1 p-2 rounded bg-gray-800 text-white border border-gray-600 text-sm"
             />
+            <Button 
+              onClick={startSpeechRecognition} 
+              size="sm" 
+              className={`${isListening ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+              disabled={!speechRecognition}
+            >
+              {isListening ? '🔴' : '🎤'}
+            </Button>
             <Button onClick={sendMessage} size="sm" className="bg-green-600 hover:bg-green-700">
               Send
             </Button>
@@ -636,6 +736,7 @@ const Navigation = ({ darkMode, toggleDarkMode }) => {
     { path: '/news', label: 'News', icon: Newspaper },
     { path: '/videos', label: 'Videos', icon: Video },
     { path: '/stats', label: 'Stats', icon: BarChart3 },
+    { path: '/rosters', label: 'Rosters', icon: Users },
     { path: '/merch', label: 'Merch', icon: ShoppingBag },
     { path: '/fantasy', label: 'Fantasy', icon: Trophy },
     { path: '/tickets', label: 'Tickets', icon: Ticket },
@@ -792,18 +893,18 @@ const Navigation = ({ darkMode, toggleDarkMode }) => {
 }
 
 // Home Page Component
-const HomePage = ({ setTriviaOpen }) => (
+const HomePage = ({ setTriviaOpen, t }) => (
   <div className="space-y-8">
     <div className="text-center py-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg">
-      <h1 className="text-4xl font-bold mb-4">Welcome to NHL Sports Hub</h1>
-      <p className="text-xl">Your ultimate destination for hockey news, stats, and entertainment</p>
+      <h1 className="text-4xl font-bold mb-4">{t('welcome')}</h1>
+      <p className="text-xl">{t('subtitle')}</p>
     </div>
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Standings */}
       <Card>
         <CardHeader>
-          <CardTitle>Current Standings</CardTitle>
+          <CardTitle>{t('currentStandings')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -825,7 +926,7 @@ const HomePage = ({ setTriviaOpen }) => (
       {/* Latest News */}
       <Card>
         <CardHeader>
-          <CardTitle>Latest News</CardTitle>
+          <CardTitle>{t('latestNews')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -841,17 +942,17 @@ const HomePage = ({ setTriviaOpen }) => (
       </Card>
     </div>
 
-    {/* Mini Game Section */}
+    {/* Hockey Trivia Challenge */}
     <Card>
       <CardHeader>
-        <CardTitle>Hockey Trivia Challenge</CardTitle>
+        <CardTitle className="text-center">{t('hockeyTrivia')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-center space-y-4">
-          <p>Test your NHL knowledge with our daily trivia challenge!</p>
+          <p>{t('triviaDescription')}</p>
           <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600" onClick={() => setTriviaOpen(true)}>
             <Gamepad2 className="mr-2" size={16} />
-            Play Trivia
+            {t('playTrivia')}
           </Button>
         </div>
       </CardContent>
@@ -971,6 +1072,281 @@ const TeamsPage = () => (
         <Users size={64} className="mx-auto mb-4 text-muted-foreground" />
         <h2 className="text-xl font-semibold mb-2">All 32 NHL Teams</h2>
         <p className="text-muted-foreground">Explore team rosters, schedules, and statistics!</p>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const RostersPage = () => {
+  const mockRosters = [
+    {
+      team: 'Boston Bruins',
+      players: [
+        { name: 'David Pastrnak', position: 'RW', number: 88 },
+        { name: 'Brad Marchand', position: 'LW', number: 63 },
+        { name: 'Patrice Bergeron', position: 'C', number: 37 },
+        { name: 'Charlie McAvoy', position: 'D', number: 73 },
+        { name: 'Linus Ullmark', position: 'G', number: 35 }
+      ]
+    },
+    {
+      team: 'Toronto Maple Leafs',
+      players: [
+        { name: 'Auston Matthews', position: 'C', number: 34 },
+        { name: 'Mitch Marner', position: 'RW', number: 16 },
+        { name: 'William Nylander', position: 'RW', number: 88 },
+        { name: 'Morgan Rielly', position: 'D', number: 44 },
+        { name: 'Frederik Andersen', position: 'G', number: 31 }
+      ]
+    },
+    {
+      team: 'Tampa Bay Lightning',
+      players: [
+        { name: 'Nikita Kucherov', position: 'RW', number: 86 },
+        { name: 'Steven Stamkos', position: 'C', number: 91 },
+        { name: 'Victor Hedman', position: 'D', number: 77 },
+        { name: 'Brayden Point', position: 'C', number: 21 },
+        { name: 'Andrei Vasilevskiy', position: 'G', number: 88 }
+      ]
+    }
+  ]
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">NHL Team Rosters</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {mockRosters.map((roster) => (
+          <Card key={roster.team} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">{roster.team}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {roster.players.map((player, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 rounded-lg bg-accent/50">
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
+                        {player.number}
+                      </Badge>
+                      <div>
+                        <div className="font-medium">{player.name}</div>
+                        <div className="text-sm text-muted-foreground">{player.position}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Button variant="outline" size="sm">
+                  View Full Roster
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Footer Page Components
+const AccessibilityPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Accessibility Options</h1>
+    <Card>
+      <CardContent className="p-8">
+        <h2 className="text-xl font-semibold mb-4">Making NHL Sports Hub Accessible</h2>
+        <p className="text-muted-foreground mb-4">
+          We are committed to ensuring our website is accessible to all users, including those with disabilities.
+        </p>
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold">Keyboard Navigation</h3>
+            <p className="text-sm text-muted-foreground">Navigate using Tab, Enter, and arrow keys.</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">Screen Reader Support</h3>
+            <p className="text-sm text-muted-foreground">Compatible with NVDA, JAWS, and VoiceOver.</p>
+          </div>
+          <div>
+            <h3 className="font-semibold">High Contrast Mode</h3>
+            <p className="text-sm text-muted-foreground">Toggle dark/light mode for better visibility.</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const SuggestionsPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Suggestions</h1>
+    <Card>
+      <CardContent className="p-8">
+        <h2 className="text-xl font-semibold mb-4">Help Us Improve</h2>
+        <p className="text-muted-foreground mb-4">
+          Your feedback is valuable to us. Let us know how we can make NHL Sports Hub better.
+        </p>
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Your name"
+            className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+          />
+          <input
+            type="email"
+            placeholder="Your email"
+            className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+          />
+          <textarea
+            placeholder="Your suggestion"
+            rows={5}
+            className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+          />
+          <Button className="bg-blue-600 hover:bg-blue-700">Submit Suggestion</Button>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const TermsPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Terms of Service</h1>
+    <Card>
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
+          <p className="text-muted-foreground">
+            By accessing and using NHL Sports Hub, you accept and agree to be bound by the terms and provision of this agreement.
+          </p>
+          
+          <h2 className="text-xl font-semibold">2. Use License</h2>
+          <p className="text-muted-foreground">
+            Permission is granted to temporarily download one copy of the materials on NHL Sports Hub for personal, non-commercial transitory viewing only.
+          </p>
+          
+          <h2 className="text-xl font-semibold">3. Disclaimer</h2>
+          <p className="text-muted-foreground">
+            The materials on NHL Sports Hub are provided on an 'as is' basis. NHL Sports Hub makes no warranties, expressed or implied.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const PrivacyPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Privacy Policy</h1>
+    <Card>
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Information We Collect</h2>
+          <p className="text-muted-foreground">
+            We collect information you provide directly to us, such as when you create an account, participate in games, or contact us.
+          </p>
+          
+          <h2 className="text-xl font-semibold">How We Use Your Information</h2>
+          <p className="text-muted-foreground">
+            We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.
+          </p>
+          
+          <h2 className="text-xl font-semibold">Information Sharing</h2>
+          <p className="text-muted-foreground">
+            We do not sell, trade, or otherwise transfer your personal information to third parties without your consent.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const ResponsibleGamingPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Responsible Gaming</h1>
+    <Card>
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Play Responsibly</h2>
+          <p className="text-muted-foreground">
+            Gaming should be fun and entertaining. We encourage responsible gaming practices.
+          </p>
+          
+          <h2 className="text-xl font-semibold">Set Limits</h2>
+          <p className="text-muted-foreground">
+            Set time and spending limits for your gaming activities. Take regular breaks.
+          </p>
+          
+          <h2 className="text-xl font-semibold">Get Help</h2>
+          <p className="text-muted-foreground">
+            If you feel gaming is becoming a problem, seek help from professional organizations.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const TournamentsPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Tournaments</h1>
+    <Card>
+      <CardContent className="p-8">
+        <h2 className="text-xl font-semibold mb-4">Upcoming Tournaments</h2>
+        <div className="space-y-4">
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold">NHL Trivia Championship</h3>
+            <p className="text-sm text-muted-foreground">Date: March 15, 2025</p>
+            <p className="text-sm text-muted-foreground">Prize: $1,000</p>
+          </div>
+          <div className="p-4 border rounded-lg">
+            <h3 className="font-semibold">Fantasy Hockey League</h3>
+            <p className="text-sm text-muted-foreground">Date: April 1, 2025</p>
+            <p className="text-sm text-muted-foreground">Prize: $2,500</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)
+
+const ContactPage = () => (
+  <div className="space-y-6">
+    <h1 className="text-3xl font-bold">Contact Us</h1>
+    <Card>
+      <CardContent className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Get in Touch</h2>
+            <div className="space-y-2">
+              <p><strong>Email:</strong> support@nhlsportshub.com</p>
+              <p><strong>Phone:</strong> 1-800-NHL-HELP</p>
+              <p><strong>Address:</strong> 123 Hockey Lane, Sports City, SC 12345</p>
+            </div>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Send a Message</h2>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Your name"
+                className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+              />
+              <input
+                type="email"
+                placeholder="Your email"
+                className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+              />
+              <textarea
+                placeholder="Your message"
+                rows={4}
+                className="w-full p-3 rounded border border-gray-300 dark:border-gray-600 bg-background"
+              />
+              <Button className="bg-blue-600 hover:bg-blue-700">Send Message</Button>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   </div>
@@ -1351,52 +1727,105 @@ const ProfilePage = ({ isOpen, onClose }) => {
   )
 }
 
+// Odometer Component for animated numbers
+const Odometer = ({ value, duration = 2000 }) => {
+  const [displayValue, setDisplayValue] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  useEffect(() => {
+    if (value !== displayValue) {
+      setIsAnimating(true)
+      const startValue = displayValue
+      const endValue = value
+      const startTime = Date.now()
+
+      const animate = () => {
+        const now = Date.now()
+        const elapsed = now - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4)
+        const currentValue = Math.round(startValue + (endValue - startValue) * easeOutQuart)
+        
+        setDisplayValue(currentValue)
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        } else {
+          setIsAnimating(false)
+        }
+      }
+      
+      requestAnimationFrame(animate)
+    }
+  }, [value, displayValue, duration])
+
+  return (
+    <span className={`inline-block transition-all duration-300 ${isAnimating ? 'scale-110' : 'scale-100'}`}>
+      {displayValue.toLocaleString()}
+    </span>
+  )
+}
+
 // Custom Footer Component
-const CustomFooter = () => {
-  const [onlineNow] = useState([1, 2, 5, 4])
-  const [allTimeVisitors] = useState([2, 4, 7, 8, 3, 9])
-  const [selectedLanguage, setSelectedLanguage] = useState('English')
+const CustomFooter = ({ siteLanguage, setSiteLanguage }) => {
+  const [onlineNow, setOnlineNow] = useState(1254)
+  const [allTimeVisitors, setAllTimeVisitors] = useState(247839)
 
   const languages = [
     'English', 'Mandarin', 'Hindi', 'Spanish', 'French', 
     'Arabic', 'Bengali', 'Russian', 'Portuguese', 'Japanese'
   ]
 
+  // Simulate real-time updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Randomly update online count (simulate users joining/leaving)
+      setOnlineNow(prev => {
+        const change = Math.floor(Math.random() * 21) - 10 // -10 to +10
+        return Math.max(1000, prev + change)
+      })
+      
+      // Slowly increment total visitors
+      setAllTimeVisitors(prev => prev + Math.floor(Math.random() * 3))
+    }, 5000) // Update every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <footer className="bg-black text-white py-12 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Online Stats */}
+        {/* Online Stats with Odometer */}
         <div className="text-center mb-12">
           <div className="mb-6">
             <h3 className="text-yellow-400 font-bold text-lg mb-2">ONLINE NOW</h3>
-            <div className="flex justify-center space-x-4">
-              {onlineNow.map((num, index) => (
-                <span key={index} className="text-yellow-400 text-2xl font-bold">
-                  {num}
-                </span>
-              ))}
+            <div className="flex justify-center">
+              <span className="text-yellow-400 text-3xl font-bold">
+                <Odometer value={onlineNow} />
+              </span>
             </div>
           </div>
           <div>
             <h3 className="text-yellow-400 font-bold text-lg mb-2">ALL TIME VISITORS</h3>
-            <div className="flex justify-center space-x-4">
-              {allTimeVisitors.map((num, index) => (
-                <span key={index} className="text-yellow-400 text-2xl font-bold">
-                  {num}
-                </span>
-              ))}
+            <div className="flex justify-center">
+              <span className="text-yellow-400 text-3xl font-bold">
+                <Odometer value={allTimeVisitors} />
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+        {/* Main Footer Content - 2 rows of 3 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Row 1 */}
           {/* Accessibility */}
           <div>
             <h4 className="text-cyan-400 font-bold text-lg mb-4">ACCESSIBILITY</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Accessibility Options</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Suggestions</a></li>
+              <li><Link to="/accessibility" className="text-gray-300 hover:text-white transition-colors">Accessibility Options</Link></li>
+              <li><Link to="/suggestions" className="text-gray-300 hover:text-white transition-colors">Suggestions</Link></li>
             </ul>
           </div>
 
@@ -1404,12 +1833,9 @@ const CustomFooter = () => {
           <div>
             <h4 className="text-purple-400 font-bold text-lg mb-4">COMPANY</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Responsible Gaming</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">AML Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Fair Play</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Credits</a></li>
+              <li><Link to="/terms" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/responsible-gaming" className="text-gray-300 hover:text-white transition-colors">Responsible Gaming</Link></li>
             </ul>
           </div>
 
@@ -1417,63 +1843,50 @@ const CustomFooter = () => {
           <div>
             <h4 className="text-yellow-400 font-bold text-lg mb-4">COMPETITIONS</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Tournaments</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Registration</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Prizes</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Player of the Month</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Wall of Fame</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Awards & Achievements</a></li>
+              <li><Link to="/tournaments" className="text-gray-300 hover:text-white transition-colors">Tournaments</Link></li>
+              <li><Link to="/registration" className="text-gray-300 hover:text-white transition-colors">Registration</Link></li>
+              <li><Link to="/prizes" className="text-gray-300 hover:text-white transition-colors">Prizes</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Row 2 */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Legal */}
+          <div>
+            <h4 className="text-purple-400 font-bold text-lg mb-4">LEGAL</h4>
+            <ul className="space-y-2">
+              <li><Link to="/aml-policy" className="text-gray-300 hover:text-white transition-colors">AML Policy</Link></li>
+              <li><Link to="/fair-play" className="text-gray-300 hover:text-white transition-colors">Fair Play</Link></li>
+              <li><Link to="/credits" className="text-gray-300 hover:text-white transition-colors">Credits</Link></li>
             </ul>
           </div>
 
-          {/* Legal & Support */}
+          {/* Support */}
           <div>
-            <div className="mb-6">
-              <h4 className="text-purple-400 font-bold text-lg mb-4">LEGAL</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Cookie Policy</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Responsible Gaming</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">AML Policy</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Fair Play</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-orange-400 font-bold text-lg mb-4">SUPPORT</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">FAQs</a></li>
-              </ul>
-            </div>
+            <h4 className="text-orange-400 font-bold text-lg mb-4">SUPPORT</h4>
+            <ul className="space-y-2">
+              <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/help" className="text-gray-300 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/faq" className="text-gray-300 hover:text-white transition-colors">FAQs</Link></li>
+            </ul>
           </div>
 
           {/* Social Media */}
           <div>
             <h4 className="text-pink-400 font-bold text-lg mb-4">SOCIAL MEDIA</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                 </svg>
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
                 </svg>
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z.017 0z"/>
-                </svg>
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                </svg>
-              </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
@@ -1485,8 +1898,8 @@ const CustomFooter = () => {
         {/* Language Selector */}
         <div className="text-center">
           <select 
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
+            value={siteLanguage}
+            onChange={(e) => setSiteLanguage(e.target.value)}
             className="bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {languages.map((lang) => (
@@ -1506,6 +1919,87 @@ function App() {
   const [triviaOpen, setTriviaOpen] = useState(false)
   const [miniGameOpen, setMiniGameOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [siteLanguage, setSiteLanguage] = useState('English')
+
+  // Language translations
+  const translations = {
+    'English': {
+      welcome: 'Welcome to NHL Sports Hub',
+      subtitle: 'Your ultimate destination for hockey news, stats, and entertainment',
+      currentStandings: 'Current Standings',
+      latestNews: 'Latest News',
+      hockeyTrivia: 'Hockey Trivia Challenge',
+      triviaDescription: 'Test your NHL knowledge with our daily trivia challenge!',
+      playTrivia: 'Play Trivia',
+      home: 'Home',
+      news: 'News',
+      videos: 'Videos',
+      stats: 'Stats',
+      rosters: 'Rosters',
+      merch: 'Merch',
+      fantasy: 'Fantasy',
+      tickets: 'Tickets',
+      teams: 'Teams'
+    },
+    'Spanish': {
+      welcome: 'Bienvenido a NHL Sports Hub',
+      subtitle: 'Tu destino definitivo para noticias, estadísticas y entretenimiento de hockey',
+      currentStandings: 'Clasificaciones Actuales',
+      latestNews: 'Últimas Noticias',
+      hockeyTrivia: 'Desafío de Trivia de Hockey',
+      triviaDescription: '¡Pon a prueba tu conocimiento de la NHL con nuestro desafío diario de trivia!',
+      playTrivia: 'Jugar Trivia',
+      home: 'Inicio',
+      news: 'Noticias',
+      videos: 'Videos',
+      stats: 'Estadísticas',
+      rosters: 'Plantillas',
+      merch: 'Mercancía',
+      fantasy: 'Fantasía',
+      tickets: 'Boletos',
+      teams: 'Equipos'
+    },
+    'French': {
+      welcome: 'Bienvenue au NHL Sports Hub',
+      subtitle: 'Votre destination ultime pour les nouvelles, statistiques et divertissement de hockey',
+      currentStandings: 'Classements Actuels',
+      latestNews: 'Dernières Nouvelles',
+      hockeyTrivia: 'Défi Trivia Hockey',
+      triviaDescription: 'Testez vos connaissances NHL avec notre défi trivia quotidien!',
+      playTrivia: 'Jouer Trivia',
+      home: 'Accueil',
+      news: 'Nouvelles',
+      videos: 'Vidéos',
+      stats: 'Statistiques',
+      rosters: 'Effectifs',
+      merch: 'Marchandise',
+      fantasy: 'Fantaisie',
+      tickets: 'Billets',
+      teams: 'Équipes'
+    },
+    'Mandarin': {
+      welcome: '欢迎来到NHL体育中心',
+      subtitle: '您的曲棍球新闻、统计和娱乐的终极目的地',
+      currentStandings: '当前排名',
+      latestNews: '最新新闻',
+      hockeyTrivia: '曲棍球知识竞赛',
+      triviaDescription: '通过我们的每日知识竞赛测试您的NHL知识！',
+      playTrivia: '开始竞赛',
+      home: '首页',
+      news: '新闻',
+      videos: '视频',
+      stats: '统计',
+      rosters: '名单',
+      merch: '商品',
+      fantasy: '梦幻',
+      tickets: '门票',
+      teams: '球队'
+    }
+  }
+
+  const t = (key) => {
+    return translations[siteLanguage]?.[key] || translations['English'][key] || key
+  }
 
   // Universal modal closing logic
   const handleModalBackdropClick = (e, closeFunction) => {
@@ -1586,14 +2080,31 @@ function App() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
-            <Route path="/" element={<HomePage setTriviaOpen={setTriviaOpen} />} />
+            <Route path="/" element={<HomePage setTriviaOpen={setTriviaOpen} t={t} />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/videos" element={<VideosPage />} />
             <Route path="/stats" element={<StatsPage />} />
+            <Route path="/rosters" element={<RostersPage />} />
             <Route path="/merch" element={<MerchPage />} />
             <Route path="/fantasy" element={<FantasyPage />} />
             <Route path="/tickets" element={<TicketsPage />} />
             <Route path="/teams" element={<TeamsPage />} />
+            
+            {/* Footer Pages */}
+            <Route path="/accessibility" element={<AccessibilityPage />} />
+            <Route path="/suggestions" element={<SuggestionsPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/responsible-gaming" element={<ResponsibleGamingPage />} />
+            <Route path="/tournaments" element={<TournamentsPage />} />
+            <Route path="/registration" element={<TournamentsPage />} />
+            <Route path="/prizes" element={<TournamentsPage />} />
+            <Route path="/aml-policy" element={<TermsPage />} />
+            <Route path="/fair-play" element={<ResponsibleGamingPage />} />
+            <Route path="/credits" element={<TermsPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/help" element={<ContactPage />} />
+            <Route path="/faq" element={<ContactPage />} />
           </Routes>
         </main>
 
@@ -1639,7 +2150,7 @@ function App() {
         </div>
 
         {/* Custom Footer */}
-        <CustomFooter />
+        <CustomFooter siteLanguage={siteLanguage} setSiteLanguage={setSiteLanguage} />
       </div>
     </Router>
   )
