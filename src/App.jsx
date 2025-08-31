@@ -893,7 +893,7 @@ const Navigation = ({ darkMode, toggleDarkMode }) => {
 }
 
 // Home Page Component
-const HomePage = ({ setTriviaOpen, t }) => (
+const HomePage = ({ setMiniGameOpen, t }) => (
   <div className="space-y-8">
     <div className="text-center py-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg">
       <h1 className="text-4xl font-bold mb-4">{t('welcome')}</h1>
@@ -942,17 +942,17 @@ const HomePage = ({ setTriviaOpen, t }) => (
       </Card>
     </div>
 
-    {/* Hockey Trivia Challenge */}
+    {/* Hockey Target Practice Game */}
     <Card>
       <CardHeader>
-        <CardTitle className="text-center">{t('hockeyTrivia')}</CardTitle>
+        <CardTitle className="text-center">{t('hockeyGame') || 'Hockey Target Practice'}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="text-center space-y-4">
-          <p>{t('triviaDescription')}</p>
-          <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600" onClick={() => setTriviaOpen(true)}>
-            <Gamepad2 className="mr-2" size={16} />
-            {t('playTrivia')}
+          <p>{t('gameDescription') || 'Choose your team and hit targets to score points! Compete on the leaderboard!'}</p>
+          <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600" onClick={() => setMiniGameOpen(true)}>
+            <Target className="mr-2" size={16} />
+            {t('playGame') || 'Play Game'}
           </Button>
         </div>
       </CardContent>
@@ -1352,7 +1352,7 @@ const ContactPage = () => (
   </div>
 )
 
-// Google Doodle-style Mini Game Component
+// Enhanced Mini Game Component with Leaderboard
 const MiniGame = ({ isOpen, onClose }) => {
   const [selectedTeam, setSelectedTeam] = useState('')
   const [gameStarted, setGameStarted] = useState(false)
@@ -1360,6 +1360,8 @@ const MiniGame = ({ isOpen, onClose }) => {
   const [timeLeft, setTimeLeft] = useState(30)
   const [gameOver, setGameOver] = useState(false)
   const [targets, setTargets] = useState([])
+  const [activeTab, setActiveTab] = useState('game')
+  const [showGameOverScreen, setShowGameOverScreen] = useState(false)
   const [leaderboard, setLeaderboard] = useState(() => {
     const saved = localStorage.getItem('nhl-mini-game-leaderboard')
     return saved ? JSON.parse(saved) : {
@@ -1388,6 +1390,8 @@ const MiniGame = ({ isOpen, onClose }) => {
     setScore(0)
     setTimeLeft(30)
     setGameOver(false)
+    setShowGameOverScreen(false)
+    setActiveTab('game')
     generateTargets()
   }
 
@@ -1421,12 +1425,34 @@ const MiniGame = ({ isOpen, onClose }) => {
   const endGame = () => {
     setGameOver(true)
     setGameStarted(false)
+    setShowGameOverScreen(true)
     
     // Update leaderboard
     const newLeaderboard = { ...leaderboard }
     newLeaderboard[selectedTeam] += score
     setLeaderboard(newLeaderboard)
     localStorage.setItem('nhl-mini-game-leaderboard', JSON.stringify(newLeaderboard))
+  }
+
+  const resetGame = () => {
+    setSelectedTeam('')
+    setGameStarted(false)
+    setScore(0)
+    setTimeLeft(30)
+    setGameOver(false)
+    setShowGameOverScreen(false)
+    setActiveTab('game')
+    setTargets([])
+  }
+
+  const replayGame = () => {
+    setGameStarted(false)
+    setScore(0)
+    setTimeLeft(30)
+    setGameOver(false)
+    setShowGameOverScreen(false)
+    setActiveTab('game')
+    setTargets([])
   }
 
   useEffect(() => {
@@ -1455,98 +1481,193 @@ const MiniGame = ({ isOpen, onClose }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!gameStarted && !gameOver && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Choose Your Team</label>
-                <select
-                  value={selectedTeam}
-                  onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
-                >
-                  <option value="">Select a team...</option>
-                  {teams.map(team => (
-                    <option key={team} value={team}>{team}</option>
-                  ))}
-                </select>
+          {/* Game Over Screen */}
+          {showGameOverScreen && (
+            <div className="text-center space-y-6">
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-yellow-400">Game Over!</h2>
+                <div className="space-y-2">
+                  <p className="text-lg">Team: <span className="font-bold text-blue-300">{selectedTeam}</span></p>
+                  <p className="text-lg">Final Score: <span className="font-bold text-green-300">{score} points</span></p>
+                  <p className="text-sm text-gray-300">Points added to {selectedTeam}'s total!</p>
+                </div>
               </div>
-              <Button onClick={startGame} className="w-full bg-green-600 hover:bg-green-700">
-                Start Game
-              </Button>
+
+              {/* Leaderboard after game */}
+              <div className="bg-black bg-opacity-30 rounded-lg p-4">
+                <h3 className="text-xl font-bold mb-4 text-center text-yellow-400">🏆 Team Leaderboard</h3>
+                <div className="space-y-2">
+                  {sortedLeaderboard.map(([team, points], index) => (
+                    <div key={team} className={`flex justify-between items-center p-2 rounded ${
+                      team === selectedTeam ? 'bg-blue-600 bg-opacity-50' : 'bg-gray-800 bg-opacity-50'
+                    }`}>
+                      <div className="flex items-center space-x-2">
+                        <span className={`font-bold ${
+                          index === 0 ? 'text-yellow-400' : 
+                          index === 1 ? 'text-gray-300' : 
+                          index === 2 ? 'text-orange-400' : 'text-white'
+                        }`}>
+                          #{index + 1}
+                        </span>
+                        <span className="font-medium">{team}</span>
+                      </div>
+                      <span className="font-bold text-green-300">{points.toLocaleString()} pts</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex space-x-4 justify-center">
+                <Button onClick={replayGame} className="bg-green-600 hover:bg-green-700">
+                  🔄 Play Again
+                </Button>
+                <Button onClick={resetGame} className="bg-blue-600 hover:bg-blue-700">
+                  🏒 New Game
+                </Button>
+                <Button onClick={onClose} className="bg-red-600 hover:bg-red-700">
+                  ❌ Close
+                </Button>
+              </div>
             </div>
           )}
 
-          {gameStarted && (
+          {/* Tab Navigation */}
+          {!showGameOverScreen && (
+            <div className="flex space-x-2 border-b border-gray-600">
+              <button
+                onClick={() => setActiveTab('game')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'game' 
+                    ? 'text-blue-300 border-b-2 border-blue-300' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🎮 Game
+              </button>
+              <button
+                onClick={() => setActiveTab('leaderboard')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'leaderboard' 
+                    ? 'text-blue-300 border-b-2 border-blue-300' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                🏆 Leaderboard
+              </button>
+            </div>
+          )}
+
+          {/* Game Tab */}
+          {activeTab === 'game' && !showGameOverScreen && (
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <div>Team: {selectedTeam}</div>
-                <div>Score: {score}</div>
-                <div>Time: {timeLeft}s</div>
-              </div>
-              
-              <div className="relative bg-green-800 rounded-lg h-80 overflow-hidden border-4 border-white">
-                {/* Hockey rink background */}
-                <div className="absolute inset-0 bg-gradient-to-b from-green-700 to-green-900"></div>
-                <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 transform -translate-y-1/2"></div>
-                <div className="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-blue-500 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-                
-                {/* Targets */}
-                {targets.filter(target => !target.hit).map(target => (
-                  <button
-                    key={target.id}
-                    onClick={() => hitTarget(target.id)}
-                    className="absolute w-8 h-8 bg-red-500 rounded-full border-2 border-white hover:bg-red-600 transition-colors animate-pulse"
-                    style={{
-                      left: `${target.x}px`,
-                      top: `${target.y}px`
-                    }}
-                  >
-                    🎯
-                  </button>
+              {!gameStarted && !gameOver && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Choose Your Team</label>
+                    <select
+                      value={selectedTeam}
+                      onChange={(e) => setSelectedTeam(e.target.value)}
+                      className="w-full p-2 rounded bg-gray-800 text-white border border-gray-600"
+                    >
+                      <option value="">Select a team...</option>
+                      {teams.map(team => (
+                        <option key={team} value={team}>{team}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-gray-300">
+                      🎯 Hit the targets to score points for your team!
+                    </p>
+                    <p className="text-sm text-gray-300">
+                      ⏱️ You have 30 seconds to score as many points as possible
+                    </p>
+                  </div>
+                  <Button onClick={startGame} className="w-full bg-green-600 hover:bg-green-700">
+                    🏒 Start Game
+                  </Button>
+                </div>
+              )}
+
+              {gameStarted && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center bg-black bg-opacity-30 rounded-lg p-3">
+                    <div className="text-sm">
+                      <span className="text-blue-300">Team:</span> {selectedTeam}
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-green-300">Score:</span> {score}
+                    </div>
+                    <div className="text-sm">
+                      <span className="text-yellow-300">Time:</span> {timeLeft}s
+                    </div>
+                  </div>
+                  
+                  <div className="relative bg-green-800 rounded-lg h-80 overflow-hidden border-4 border-white">
+                    {/* Hockey rink background */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-green-700 to-green-900"></div>
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-red-500 transform -translate-y-1/2"></div>
+                    <div className="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-blue-500 rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+                    
+                    {/* Targets */}
+                    {targets.filter(target => !target.hit).map(target => (
+                      <button
+                        key={target.id}
+                        onClick={() => hitTarget(target.id)}
+                        className="absolute w-8 h-8 bg-red-500 rounded-full border-2 border-white hover:bg-red-600 transition-colors animate-pulse"
+                        style={{
+                          left: `${target.x}px`,
+                          top: `${target.y}px`
+                        }}
+                      >
+                        🎯
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Leaderboard Tab */}
+          {activeTab === 'leaderboard' && !showGameOverScreen && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-center text-yellow-400">🏆 Team Leaderboard</h3>
+              <div className="space-y-2">
+                {sortedLeaderboard.map(([team, points], index) => (
+                  <div key={team} className={`flex justify-between items-center p-3 rounded-lg ${
+                    index === 0 ? 'bg-yellow-600 bg-opacity-30' :
+                    index === 1 ? 'bg-gray-600 bg-opacity-30' :
+                    index === 2 ? 'bg-orange-600 bg-opacity-30' :
+                    'bg-gray-800 bg-opacity-50'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <span className={`text-2xl font-bold ${
+                        index === 0 ? 'text-yellow-400' : 
+                        index === 1 ? 'text-gray-300' : 
+                        index === 2 ? 'text-orange-400' : 'text-white'
+                      }`}>
+                        #{index + 1}
+                      </span>
+                      <div>
+                        <div className="font-medium">{team}</div>
+                        {index < 3 && (
+                          <div className="text-xs text-gray-300">
+                            {index === 0 ? '🥇 Champion' : index === 1 ? '🥈 Runner-up' : '🥉 Third Place'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-bold text-green-300 text-lg">{points.toLocaleString()}</span>
+                  </div>
                 ))}
               </div>
-              
-              <div className="text-center text-sm">
-                Click the targets as fast as you can! Your score will be added to your team's total.
+              <div className="text-center text-sm text-gray-300">
+                💡 Play games to earn points for your favorite team!
               </div>
             </div>
           )}
-
-          {gameOver && (
-            <div className="space-y-4 text-center">
-              <h3 className="text-2xl font-bold">Game Over!</h3>
-              <div className="text-lg">
-                Final Score: {score} points for {selectedTeam}
-              </div>
-              <Button 
-                onClick={() => {
-                  setGameOver(false)
-                  setSelectedTeam('')
-                }} 
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Play Again
-              </Button>
-            </div>
-          )}
-
-          {/* Leaderboard */}
-          <div className="border-t border-gray-600 pt-4">
-            <h4 className="font-semibold mb-3 text-center">Team Leaderboard</h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {sortedLeaderboard.map(([team, points], index) => (
-                <div key={team} className="flex justify-between items-center p-2 bg-gray-800 rounded">
-                  <span className="flex items-center">
-                    <span className="mr-2">{index + 1}.</span>
-                    <span className={selectedTeam === team ? 'font-bold text-yellow-400' : ''}>
-                      {team}
-                    </span>
-                  </span>
-                  <span className="font-bold">{points}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
@@ -1916,7 +2037,6 @@ function App() {
   const [darkMode, setDarkMode] = useState(true) // Default to dark mode
   const [slotsOpen, setSlotsOpen] = useState(false)
   const [chatbotOpen, setChatbotOpen] = useState(false)
-  const [triviaOpen, setTriviaOpen] = useState(false)
   const [miniGameOpen, setMiniGameOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [siteLanguage, setSiteLanguage] = useState('English')
@@ -2080,7 +2200,7 @@ function App() {
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Routes>
-            <Route path="/" element={<HomePage setTriviaOpen={setTriviaOpen} t={t} />} />
+            <Route path="/" element={<HomePage setMiniGameOpen={setMiniGameOpen} t={t} />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/videos" element={<VideosPage />} />
             <Route path="/stats" element={<StatsPage />} />
@@ -2123,14 +2243,6 @@ function App() {
           onDoubleClick={(e) => handleDoubleClick(e, () => setChatbotOpen(false))}
         >
           <Chatbot isOpen={chatbotOpen} onClose={() => setChatbotOpen(false)} />
-        </div>
-        
-        <div 
-          className={triviaOpen ? "block" : "hidden"}
-          onClick={(e) => handleModalBackdropClick(e, () => setTriviaOpen(false))}
-          onDoubleClick={(e) => handleDoubleClick(e, () => setTriviaOpen(false))}
-        >
-          <TriviaGame isOpen={triviaOpen} onClose={() => setTriviaOpen(false)} />
         </div>
         
         <div 
