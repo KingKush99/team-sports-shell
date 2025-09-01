@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -20,8 +23,7 @@ jobs:
         
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
-    
-        
+      
     - name: Install dependencies
       run: pnpm install
       
