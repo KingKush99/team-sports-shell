@@ -3,92 +3,132 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NHL Hub — v2</title>
-  <meta name="description" content="NHL-style hub with exact footer, floating chatbot buttons, and a mini-game with leaderboard."/>
-  <link rel="stylesheet" href="./css/site.css" />
+  <title>Mini-Sticks Hub</title>
+  <meta name="description" content="Mini-Sticks Hub with Google-Doodle style game, universal leaderboard, store, and Pogo-style profile."/>
+  <link rel="stylesheet" href="./css/app.css" />
 </head>
-<body>
-  <a class="skip" href="#content">Skip to content</a>
+<body class="theme-dark">
+  <a class="skip" href="#main">Skip to content</a>
 
-  <header class="topbar" role="banner">
-    <div class="brand" aria-label="NHL Hub Home">NHL Hub</div>
-    <nav aria-label="Primary" class="primary-nav">
-      <button class="navbtn">Scores</button>
-      <button class="navbtn">News</button>
-      <button class="navbtn">Teams</button>
-      <button class="navbtn">Standings</button>
-      <button class="navbtn">Schedule</button>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="brand">Mini-Sticks</div>
+    <nav class="primary-nav" role="tablist" aria-label="Main">
+      <button class="navbtn" data-tab="home" role="tab" aria-selected="true">Home</button>
+      <button class="navbtn" data-tab="rosters" role="tab">Rosters</button>
+      <button class="navbtn" data-tab="stats" role="tab">Stats</button>
     </nav>
   </header>
 
+  <!-- Hero -->
   <section class="hero">
     <div class="hero-inner">
-      <h1>Latest Headlines</h1>
-      <p>Live scores, highlights, and stories across the league.</p>
+      <h1 data-i18n="headline">Pick a team, pop the puck, rule the leaderboard.</h1>
+      <p class="muted" data-i18n="subhead">A light, fast, Google-Doodle style experience.</p>
     </div>
   </section>
 
-  <main id="content" class="container">
-    <section class="cards three">
-      <article class="card">
-        <h3>Top Stories</h3>
-        <ul>
-          <li>Overtime thriller seals division title</li>
-          <li>Rookie records first career hat trick</li>
-          <li>Trade market heats up before deadline</li>
-        </ul>
-      </article>
-      <article class="card">
-        <h3>Power Rankings</h3>
-        <p>Weekly snapshots of team momentum and form.</p>
-        <button class="btn">See rankings</button>
-      </article>
-      <article class="card">
-        <h3>Highlights</h3>
-        <p>Watch the best plays from last night’s action.</p>
-        <button class="btn">Watch now</button>
-      </article>
+  <main id="main" class="container">
+    <!-- HOME TAB -->
+    <section class="tab-view active" id="tab-home">
+      <div class="cards three">
+        <article class="card">
+          <h3 data-i18n="card_top">Top Notes</h3>
+          <ul>
+            <li data-i18n="note1">Mini-Sticks teams across Ontario, Québec, Manitoba, and the Northeastern U.S.</li>
+            <li data-i18n="note2">Play the Mini-Game and your score adds to your team’s universal leaderboard.</li>
+            <li data-i18n="note3">Use BALL·E, CRYPTO, or FIAT and earn coins by watching videos.</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="card_power">Power Meter</h3>
+          <p data-i18n="power_desc">The faster you pop the puck, the higher your combo multiplier climbs.</p>
+          <button class="btn" id="openProfile" data-i18n="open_profile">Open Profile</button>
+        </article>
+        <article class="card">
+          <h3 data-i18n="card_highlights">Highlights</h3>
+          <p data-i18n="high_desc">Quick clips from the community are coming soon.</p>
+        </article>
+      </div>
+
+      <!-- Game / Leaderboard Tabs -->
+      <section class="gamewrap section">
+        <div class="tabheader" role="tablist" aria-label="Mini-Game Tabs">
+          <button class="subtab active" data-subtab="game" role="tab" aria-selected="true" data-i18n="tab_game">Game</button>
+          <button class="subtab" data-subtab="leaderboard" role="tab" data-i18n="tab_leaderboard">Leaderboard</button>
+        </div>
+
+        <!-- GAME PANE -->
+        <div id="pane-game" class="pane active">
+          <div class="controls">
+            <label for="teamSel" class="visually-hidden">Team</label>
+            <select id="teamSel" class="select"></select>
+            <button id="playBtn" class="btn primary" data-i18n="start_game">Start Game</button>
+            <div class="hud">
+              <span data-i18n="score">Score:</span> <strong id="score">0</strong>
+              <span class="sep">|</span>
+              <span data-i18n="time">Time:</span> <strong id="time">--</strong>
+            </div>
+          </div>
+          <canvas id="canvas" width="900" height="260" class="canvas" aria-label="Click the moving puck"></canvas>
+
+          <div class="capture-row">
+            <button id="shotBtn" class="btn" data-i18n="screenshot">Screenshot</button>
+            <button id="recBtn" class="btn" data-i18n="start_rec">Start Recording</button>
+            <a id="dlLink" class="pill hidden" download="ministicks-capture.webm" data-i18n="download_rec">Download Recording</a>
+          </div>
+        </div>
+
+        <!-- LEADERBOARD PANE -->
+        <div id="pane-leaderboard" class="pane">
+          <div class="store-row">
+            <div class="wallet">
+              <div><span>BALL·E</span> <strong id="w-balle">0</strong></div>
+              <div><span>CRYPTO</span> <strong id="w-crypto">0</strong></div>
+              <div><span>FIAT</span> <strong id="w-fiat">0</strong></div>
+            </div>
+            <div class="actions">
+              <button class="btn" id="buyBalle" data-i18n="buy_balle">Buy BALL·E</button>
+              <button class="btn" id="buyCrypto" data-i18n="buy_crypto">Buy Crypto</button>
+              <button class="btn" id="buyFiat" data-i18n="buy_fiat">Buy with Fiat</button>
+              <button class="btn" id="watchAd" data-i18n="earn_video">Earn by Watching</button>
+            </div>
+          </div>
+          <div id="lbPanel" class="leaderboard"></div>
+        </div>
+      </section>
     </section>
 
-    <!-- Mini Game -->
-    <section class="minigame section">
-      <div class="row">
-        <h2>Puck Popper</h2>
-        <div class="toggle">
-          <label class="switch">
-            <input type="checkbox" id="lbToggle" checked />
-            <span aria-hidden="true" class="slider"></span>
-          </label>
-          <span class="toggle-label">Leaderboard</span>
+    <!-- ROSTERS TAB -->
+    <section class="tab-view" id="tab-rosters">
+      <div id="rosterPanel" class="card">
+        <h3 data-i18n="rosters_title">Team Rosters</h3>
+        <div class="roster-controls">
+          <select id="rosterTeam" class="select"></select>
         </div>
+        <div id="rosterTable"></div>
       </div>
+    </section>
 
-      <div class="controls">
-        <label for="teamSel" class="visually-hidden">Team</label>
-        <select id="teamSel" class="select"></select>
-        <button id="playBtn" class="btn primary">Start Game</button>
-        <div class="hud">
-          <span>Score:</span><strong id="score">0</strong>
-          <span class="sep">|</span>
-          <span>Time:</span><strong id="time">--</strong>
-        </div>
+    <!-- STATS TAB -->
+    <section class="tab-view" id="tab-stats">
+      <div class="card">
+        <h3 data-i18n="stats_title">League Stats</h3>
+        <div id="statsTable"></div>
       </div>
-
-      <canvas id="canvas" width="900" height="240" class="canvas" aria-label="Click the moving puck to score"></canvas>
-      <div id="lbPanel" class="leaderboard"></div>
     </section>
   </main>
 
-  <!-- Footer with exact sections/text -->
-  <footer class="site-footer" role="contentinfo">
+  <!-- Footer -->
+  <footer class="site-footer">
     <div class="counters">
       <div class="ctr">
         <div class="label">ONLINE NOW</div>
-        <div id="onlineDigits" class="digits" aria-label="Users online"></div>
+        <div id="onlineDigits" class="digits"></div>
       </div>
       <div class="ctr">
         <div class="label">ALL TIME VISITORS</div>
-        <div id="allTimeDigits" class="digits" aria-label="All time visitors"></div>
+        <div id="allTimeDigits" class="digits"></div>
       </div>
     </div>
 
@@ -146,58 +186,90 @@
     <div class="footer-bottom">
       <div class="language">
         <select id="langSel" class="select small" aria-label="Language">
-          <option value="en-US" selected>English</option>
-          <option value="fr-CA">Français</option>
-          <option value="es-ES">Español</option>
-          <option value="pt-PT">Português</option>
-          <option value="ru-RU">Русский</option>
-          <option value="ar-SA">العربية</option>
-          <option value="bn-BD">বাংলা</option>
-          <option value="zh-CN">中文</option>
-          <option value="nl-NL">Nederlands</option>
-          <option value="hi-IN">हिंदी</option>
+          <option value="en" selected>English</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
         </select>
       </div>
       <div class="apps">
         <div class="dl-title">Download Mobile App</div>
         <div class="row">
-          <a class="pill" href="#" role="button" aria-label="Download iOS App">🍎 iOS App</a>
-          <a class="pill" href="#" role="button" aria-label="Download Android App">🤖 Android App</a>
+          <a class="pill" href="#" role="button">🍎 iOS App</a>
+          <a class="pill" href="#" role="button">🤖 Android App</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- FAB buttons -->
+  <!-- Floating circular buttons -->
   <button id="fabProfile" class="fab tl" title="Profile" aria-haspopup="dialog">👤</button>
   <button id="fabMenu" class="fab tr" title="Menu" aria-haspopup="dialog">☰</button>
   <button id="fabSlots" class="fab br" title="Mini Slots" aria-haspopup="dialog">🎰</button>
   <button id="fabChat" class="fab bl" title="Chatbot" aria-haspopup="dialog">💬</button>
 
   <!-- Panels -->
-  <section id="panelProfile" class="panel" role="dialog" aria-modal="true" aria-label="Profile Panel">
-    <div class="ph">
-      <h3>Profile</h3>
+  <section id="panelProfile" class="panel profile" role="dialog" aria-modal="true" aria-label="Profile Panel">
+    <div class="pogo-head">
+      <button class="seg active" data-pogoseg="me" data-i18n="me">ME</button>
+      <button class="seg" data-pogoseg="friends" data-i18n="friends">FRIENDS</button>
       <button class="close" data-close="panelProfile">✕</button>
     </div>
-    <div class="pb">
-      <label for="name">Display Name</label>
-      <input id="name" class="input" placeholder="Your name"/>
-      <button id="saveName" class="btn primary">Save</button>
+    <div class="profile-card">
+      <div class="lvl">
+        <div class="lvl-num" id="lvlNum">1</div>
+        <div class="lvl-label" data-i18n="level">LEVEL</div>
+      </div>
+      <div class="avatar-wrap">
+        <div class="name-row">
+          <div class="name" id="profName">Indigo</div>
+          <div class="buddy" data-i18n="and_buddy">&amp; Buddy</div>
+        </div>
+        <div class="avatar">
+          <div class="hero-fig"></div>
+          <div class="buddy-fig"></div>
+          <div class="gear">
+            <span>🧤</span><span>🥅</span><span>🏒</span>
+          </div>
+        </div>
+        <div class="xp-row">
+          <div class="xp" id="xpBar">
+            <div class="xp-fill" id="xpFill" style="width:10%"></div>
+          </div>
+          <div class="xp-text"><span id="xpCur">0</span> / <span id="xpNext">1000</span></div>
+        </div>
+        <div class="chips">
+          <button class="chip" data-i18n="buddy_hist">Buddy History</button>
+          <button class="chip" data-i18n="journal">Journal</button>
+          <button class="chip" data-i18n="style">Style</button>
+        </div>
+      </div>
+      <div class="activity">
+        <div class="title" data-i18n="total_activity">TOTAL ACTIVITY</div>
+        <div class="grid2">
+          <div class="row"><span data-i18n="km_walked">Distance Skated</span><strong id="statDist">0.0 km</strong></div>
+          <div class="row"><span data-i18n="goals">Goals Scored</span><strong id="statGoals">0</strong></div>
+          <div class="row"><span data-i18n="rinks">Rinks Visited</span><strong id="statRinks">0</strong></div>
+          <div class="row"><span data-i18n="xp_total">Total XP</span><strong id="statXP">0</strong></div>
+          <div class="row"><span data-i18n="start_date">Start Date</span><strong id="statStart">2025-01-01</strong></div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section id="panelMenu" class="panel right" role="dialog" aria-modal="true" aria-label="Menu Panel">
+  <section id="panelMenu" class="panel right narrow" role="dialog" aria-modal="true" aria-label="Menu Panel">
     <div class="ph">
-      <h3>Menu</h3>
+      <h3 data-i18n="menu">Menu</h3>
       <button class="close" data-close="panelMenu">✕</button>
     </div>
     <div class="pb">
-      <a href="#" class="menu-link">Scores</a>
-      <a href="#" class="menu-link">News</a>
-      <a href="#" class="menu-link">Teams</a>
-      <a href="#" class="menu-link">Standings</a>
-      <a href="#" class="menu-link">Schedule</a>
+      <label class="switch-row">
+        <span data-i18n="light_mode">Light Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="lightToggle" />
+          <span class="slider"></span>
+        </label>
+      </label>
+      <p class="muted" data-i18n="light_hint">Default is Dark Mode.</p>
     </div>
   </section>
 
@@ -215,34 +287,29 @@
 
   <section id="panelChat" class="panel" role="dialog" aria-modal="true" aria-label="Chatbot Panel">
     <div class="ph">
-      <h3>Chatbot</h3>
+      <h3 data-i18n="chatbot">Chatbot</h3>
       <button class="close" data-close="panelChat">✕</button>
     </div>
     <div class="pb">
       <div class="chat-row">
         <select id="chatLang" class="select small">
-          <option value="auto">Auto</option>
-          <option value="en-US">English</option>
-          <option value="fr-CA">Français</option>
-          <option value="es-ES">Español</option>
-          <option value="pt-PT">Português</option>
-          <option value="ru-RU">Русский</option>
-          <option value="ar-SA">العربية</option>
-          <option value="bn-BD">বাংলা</option>
-          <option value="zh-CN">中文</option>
-          <option value="nl-NL">Nederlands</option>
-          <option value="hi-IN">हिंदी</option>
+          <option value="auto" selected>Auto</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
         </select>
         <input id="chatIn" class="input flex1" placeholder="Speak or type…" />
         <button id="mic" class="btn circle" title="Hold to talk">🎤</button>
-        <label class="file-btn">📎<input id="chatFile" type="file" hidden /></label>
-        <button id="send" class="btn">Send</button>
+        <!-- No file upload: screenshots/recordings must come from the site -->
+        <button id="attachShot" class="btn" title="Attach last screenshot" data-i18n="attach_shot">Attach Screenshot</button>
+        <button id="attachRec" class="btn" title="Attach last recording" data-i18n="attach_rec">Attach Recording</button>
+        <button id="send" class="btn" data-i18n="send">Send</button>
       </div>
       <div id="chatLog" class="chat-log" aria-live="polite"></div>
-      <p class="muted">Front-end demo only — connect your API in <code>js/site.js</code> at <code>sendToAssistant()</code>.</p>
+      <p class="muted" data-i18n="chat_hint">Uploads are disabled. Use the Screenshot / Recording buttons from the Game tab.</p>
     </div>
   </section>
 
-  <script src="./js/site.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>
