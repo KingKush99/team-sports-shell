@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NHL Hub — v2</title>
+  <meta name="description" content="NHL-style hub with exact footer, floating chatbot buttons, and a mini-game with leaderboard."/>
+  <link rel="stylesheet" href="./css/site.css" />
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="topbar" role="banner">
+    <div class="brand" aria-label="NHL Hub Home">NHL Hub</div>
+    <nav aria-label="Primary" class="primary-nav">
+      <button class="navbtn">Scores</button>
+      <button class="navbtn">News</button>
+      <button class="navbtn">Teams</button>
+      <button class="navbtn">Standings</button>
+      <button class="navbtn">Schedule</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Latest Headlines</h1>
+      <p>Live scores, highlights, and stories across the league.</p>
+    </div>
+  </section>
+
+  <main id="content" class="container">
+    <section class="cards three">
+      <article class="card">
+        <h3>Top Stories</h3>
+        <ul>
+          <li>Overtime thriller seals division title</li>
+          <li>Rookie records first career hat trick</li>
+          <li>Trade market heats up before deadline</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Power Rankings</h3>
+        <p>Weekly snapshots of team momentum and form.</p>
+        <button class="btn">See rankings</button>
+      </article>
+      <article class="card">
+        <h3>Highlights</h3>
+        <p>Watch the best plays from last night’s action.</p>
+        <button class="btn">Watch now</button>
+      </article>
+    </section>
+
+    <!-- Mini Game -->
+    <section class="minigame section">
+      <div class="row">
+        <h2>Puck Popper</h2>
+        <div class="toggle">
+          <label class="switch">
+            <input type="checkbox" id="lbToggle" checked />
+            <span aria-hidden="true" class="slider"></span>
+          </label>
+          <span class="toggle-label">Leaderboard</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label for="teamSel" class="visually-hidden">Team</label>
+        <select id="teamSel" class="select"></select>
+        <button id="playBtn" class="btn primary">Start Game</button>
+        <div class="hud">
+          <span>Score:</span><strong id="score">0</strong>
+          <span class="sep">|</span>
+          <span>Time:</span><strong id="time">--</strong>
+        </div>
+      </div>
+
+      <canvas id="canvas" width="900" height="240" class="canvas" aria-label="Click the moving puck to score"></canvas>
+      <div id="lbPanel" class="leaderboard"></div>
+    </section>
+  </main>
+
+  <!-- Footer with exact sections/text -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="counters">
+      <div class="ctr">
+        <div class="label">ONLINE NOW</div>
+        <div id="onlineDigits" class="digits" aria-label="Users online"></div>
+      </div>
+      <div class="ctr">
+        <div class="label">ALL TIME VISITORS</div>
+        <div id="allTimeDigits" class="digits" aria-label="All time visitors"></div>
+      </div>
+    </div>
+
+    <div class="footer-grid">
+      <div class="col">
+        <h4 class="teal">ACCESSIBILITY</h4>
+        <a href="#">Accessibility Options</a>
+        <a href="#">Suggestions</a>
+      </div>
+      <div class="col">
+        <h4 class="blue">COMPANY</h4>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Responsible Gaming</a>
+        <a href="#">AML Policy</a>
+        <a href="#">Fair Play</a>
+        <a href="#"><strong>Credits</strong></a>
+      </div>
+      <div class="col">
+        <h4 class="yellow">COMPETITIONS</h4>
+        <a href="#">Tournaments</a>
+        <a href="#">Registration</a>
+        <a href="#">Prizes</a>
+        <a href="#">Player of the Month</a>
+        <a href="#">Wall of Fame</a>
+        <a href="#">Awards &amp; Achievements</a>
+      </div>
+      <div class="col">
+        <h4 class="purple">LEGAL</h4>
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Responsible Gaming</a>
+        <a href="#">AML Policy</a>
+        <a href="#">Fair Play</a>
+      </div>
+      <div class="col">
+        <h4 class="orange">SUPPORT</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Help Center</a>
+        <a href="#">FAQs</a>
+      </div>
+      <div class="col">
+        <h4 class="pink">SOCIAL MEDIA</h4>
+        <div class="social">
+          <a class="dot" href="#" aria-label="Facebook">f</a>
+          <a class="dot" href="#" aria-label="Twitter">t</a>
+          <a class="dot" href="#" aria-label="Instagram">i</a>
+          <a class="dot" href="#" aria-label="Snapchat">s</a>
+          <a class="dot" href="#" aria-label="YouTube">▶</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="language">
+        <select id="langSel" class="select small" aria-label="Language">
+          <option value="en-US" selected>English</option>
+          <option value="fr-CA">Français</option>
+          <option value="es-ES">Español</option>
+          <option value="pt-PT">Português</option>
+          <option value="ru-RU">Русский</option>
+          <option value="ar-SA">العربية</option>
+          <option value="bn-BD">বাংলা</option>
+          <option value="zh-CN">中文</option>
+          <option value="nl-NL">Nederlands</option>
+          <option value="hi-IN">हिंदी</option>
+        </select>
+      </div>
+      <div class="apps">
+        <div class="dl-title">Download Mobile App</div>
+        <div class="row">
+          <a class="pill" href="#" role="button" aria-label="Download iOS App">🍎 iOS App</a>
+          <a class="pill" href="#" role="button" aria-label="Download Android App">🤖 Android App</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FAB buttons -->
+  <button id="fabProfile" class="fab tl" title="Profile" aria-haspopup="dialog">👤</button>
+  <button id="fabMenu" class="fab tr" title="Menu" aria-haspopup="dialog">☰</button>
+  <button id="fabSlots" class="fab br" title="Mini Slots" aria-haspopup="dialog">🎰</button>
+  <button id="fabChat" class="fab bl" title="Chatbot" aria-haspopup="dialog">💬</button>
+
+  <!-- Panels -->
+  <section id="panelProfile" class="panel" role="dialog" aria-modal="true" aria-label="Profile Panel">
+    <div class="ph">
+      <h3>Profile</h3>
+      <button class="close" data-close="panelProfile">✕</button>
+    </div>
+    <div class="pb">
+      <label for="name">Display Name</label>
+      <input id="name" class="input" placeholder="Your name"/>
+      <button id="saveName" class="btn primary">Save</button>
+    </div>
+  </section>
+
+  <section id="panelMenu" class="panel right" role="dialog" aria-modal="true" aria-label="Menu Panel">
+    <div class="ph">
+      <h3>Menu</h3>
+      <button class="close" data-close="panelMenu">✕</button>
+    </div>
+    <div class="pb">
+      <a href="#" class="menu-link">Scores</a>
+      <a href="#" class="menu-link">News</a>
+      <a href="#" class="menu-link">Teams</a>
+      <a href="#" class="menu-link">Standings</a>
+      <a href="#" class="menu-link">Schedule</a>
+    </div>
+  </section>
+
+  <section id="panelSlots" class="panel right narrow" role="dialog" aria-modal="true" aria-label="Mini Slots Panel">
+    <div class="ph">
+      <h3>Mini Slots</h3>
+      <button class="close" data-close="panelSlots">✕</button>
+    </div>
+    <div class="pb">
+      <div id="reels" class="reels"><span>🍒</span><span>🍋</span><span>💎</span></div>
+      <button id="spin" class="btn primary">Spin</button>
+      <div id="slotsResult" class="slots-result">—</div>
+    </div>
+  </section>
+
+  <section id="panelChat" class="panel" role="dialog" aria-modal="true" aria-label="Chatbot Panel">
+    <div class="ph">
+      <h3>Chatbot</h3>
+      <button class="close" data-close="panelChat">✕</button>
+    </div>
+    <div class="pb">
+      <div class="chat-row">
+        <select id="chatLang" class="select small">
+          <option value="auto">Auto</option>
+          <option value="en-US">English</option>
+          <option value="fr-CA">Français</option>
+          <option value="es-ES">Español</option>
+          <option value="pt-PT">Português</option>
+          <option value="ru-RU">Русский</option>
+          <option value="ar-SA">العربية</option>
+          <option value="bn-BD">বাংলা</option>
+          <option value="zh-CN">中文</option>
+          <option value="nl-NL">Nederlands</option>
+          <option value="hi-IN">हिंदी</option>
+        </select>
+        <input id="chatIn" class="input flex1" placeholder="Speak or type…" />
+        <button id="mic" class="btn circle" title="Hold to talk">🎤</button>
+        <label class="file-btn">📎<input id="chatFile" type="file" hidden /></label>
+        <button id="send" class="btn">Send</button>
+      </div>
+      <div id="chatLog" class="chat-log" aria-live="polite"></div>
+      <p class="muted">Front-end demo only — connect your API in <code>js/site.js</code> at <code>sendToAssistant()</code>.</p>
+    </div>
+  </section>
+
+  <script src="./js/site.js"></script>
+</body>
+</html>
