@@ -1,25 +1,65 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Profile - Mini-Sticks</title>
-  <link rel="stylesheet" href="./css/app.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile — Team Sports Shell</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <header><h1>Profile Page</h1></header>
-  <main>
-    <div class="profile-header">
-      <img src="./css/default-avatar.png" alt="Profile Image" class="avatar"/>
-      <div class="stats">
-        <div><strong id="followers">120</strong> Followers</div>
-        <div><strong id="following">80</strong> Following</div>
-        <div><strong id="friends">45</strong> Friends</div>
+<body class="profile-page">
+  <header class="profile-header">
+    <nav class="profile-tabs" role="tablist">
+      <a href="#" class="active" data-i18n="me">Me</a>
+      <a href="#" data-i18n="friends">Friends</a>
+      <a href="index.html" class="back" data-i18n="back">← Back</a>
+    </nav>
+  </header>
+
+  <main class="profile-main">
+    <section class="profile-hero">
+      <div class="avatar" aria-label="Avatar">🙂</div>
+      <div class="buddy" aria-label="Buddy">🪨</div>
+      <div class="identity">
+        <h1>Indigo</h1>
+        <p>&amp; Gravel‑er</p>
       </div>
-    </div>
-    <div class="customizable-character">
-      <p>Customizable character area</p>
-    </div>
+      <div class="level">
+        <div id="levelNum" class="big">0</div>
+        <small data-i18n="level">LEVEL</small>
+      </div>
+    </section>
+
+    <section class="xp-strip">
+      <div class="xp"><span id="xpFill" style="width:0%"></span></div>
+      <div class="xp-label" id="xpLabel">0 / 1000</div>
+      <div class="quests" id="questLabel"><span data-i18n="quests">Quests</span>: <b id="quests">0/4</b></div>
+    </section>
+
+    <section class="profile-actions">
+      <button id="gain100xp">+100 XP</button>
+      <button id="gain500xp">+500 XP</button>
+      <button id="toggleNotifs" data-on="true" data-i18n="toggle_notifs">Toggle Level‑Up Notifications</button>
+    </section>
+
+    <section class="totals">
+      <h2 data-i18n="total_activity">Total Activity</h2>
+      <ul class="stats">
+        <li><span data-i18n="distance">Distance Walked</span> <b>0 km</b></li>
+        <li><span data-i18n="caught">Pokemon Caught</span> <b>0</b></li>
+        <li><span data-i18n="stops">PokéStops Visited</span> <b>0</b></li>
+        <li><span data-i18n="total_xp">Total XP</span> <b id="totalXP">0</b></li>
+        <li><span data-i18n="start_date">Start Date</span> <b>Today</b></li>
+      </ul>
+    </section>
   </main>
+
+  <!-- Bottom toast for level up -->
+  <div id="toast" class="toast hidden">
+    <div class="toast-content"><span id="toastText">Level up!</span>
+      <label class="toast-opt"><input type="checkbox" id="dontShow"> <span data-i18n="dont_show">Do not show again</span></label>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
