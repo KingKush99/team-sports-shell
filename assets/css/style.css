@@ -96,3 +96,50 @@ a{color:#9ddcff;text-decoration:none}
 
 /* Active tab */
 .tab-body{display:none}.tab-body.active{display:block}
+
+
+/* --- Minigame UI overlay --- */
+.game-stage{position:relative}
+.help-btn,.fs-btn{position:absolute;right:8px;z-index:5;width:36px;height:36px;border-radius:50%;border:1px solid #2a3048;background:#0f1322;color:#fff;cursor:pointer}
+.help-btn{top:8px}
+.fs-btn{top:52px}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:6}
+.overlay-panel{background:#0b1020;border:1px solid #1f2a44;border-radius:12px;padding:16px;max-width:720px;width:min(92vw,720px)}
+.overlay h3{margin:0 0 8px 0}
+.rules{margin:0 0 12px 14px;color:#cbd5e1}
+.play-btn{font-size:28px;padding:14px 28px;border-radius:16px;border:1px solid #2a3048;background:#0ea5e9;color:#001628;cursor:pointer;display:block;margin:24px auto}
+.countdown{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:120px;color:#fff;text-shadow:0 4px 24px rgba(0,0,0,.6);z-index:7}
+
+/* Event log */
+.event-log{margin-top:8px;max-height:120px;overflow:auto;background:#0b1020;border:1px solid #1f2a44;border-radius:10px;padding:8px;color:#cbd5e1}
+
+/* Ensure canvas sits above footer shadows */
+#rugbyCanvas{position:relative}
+
+/* Make jersey numbers readable */
+.jersey-num{font-weight:700}
+
+/* Improve buttons stacking above canvas */
+.pause-btn{z-index:2; position:relative}
+
+
+/* Help bottom-right */
+.help-btn.br{bottom:8px;top:auto;right:8px;}
+
+/* Weather HUD (top-left of game area) */
+.weather-hud{position:absolute;left:8px;top:8px;z-index:5;background:#0b1020cc;border:1px solid #1f2a44;border-radius:10px;padding:6px 10px;color:#e2e8f0;font-size:12px}
+
+/* Conversion meter overlay */
+.kick-ui{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:7}
+.kick-card{background:#0b1020;border:1px solid #1f2a44;border-radius:12px;padding:16px;width:min(92vw,560px)}
+.kick-rows{display:grid;gap:12px}
+.meter{position:relative;height:18px;border-radius:10px;overflow:hidden;background:linear-gradient(90deg,#dc2626 0 33%, #16a34a 33% 66%, #eab308 66% 100%)}
+.meter .needle{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px #fff}
+.dir{height:50px;background:linear-gradient(90deg,#374151, #0ea5e9 50%, #374151);border-radius:8px;position:relative}
+.dir .cursor{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px #fff}
+.kick-actions{text-align:right}
+.kick-actions .btn{margin-left:8px}
+.kick-note{color:#9aa4bd;font-size:12px}
+
+/* Make canvas input feel snappier on focus */
+#rugbyCanvas:focus{outline:2px solid #0ea5e9}

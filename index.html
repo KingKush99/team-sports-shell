@@ -44,7 +44,28 @@
       <button id="pauseBtn" class="pause-btn">Pause ▌▌</button>
     </div>
     <div id="minigameTab" class="tab-body active">
+      <div class="game-stage">
+      <button id="helpBtn" class="help-btn br" title="Rules">?</button>
+      <button id="fsBtn" class="fs-btn" title="Fullscreen">⛶</button>
+      <div id="weatherHud" class="weather-hud"></div>
       <canvas id="rugbyCanvas" width="1180" height="560"></canvas>
+      <div id="gameOverlay" class="overlay">
+        <div class="overlay-panel" id="rulesPanel">
+          <h3>Mini Rugby — Rules</h3>
+          <ul class="rules">
+            <li><strong>Move:</strong> W A S D</li>
+            <li><strong>Pass:</strong> P (backward/sideways only)</li>
+            <li><strong>Tackle:</strong> T (near opponent)</li>
+            <li><strong>Sprint:</strong> Hold SHIFT (max 3s at a time)</li>
+            <li><strong>Strip ball:</strong> Right-click near ball carrier (20% success; 40% if sprinting)</li>
+            <li><strong>Clock:</strong> 1 second = 1 minute • 80 minutes total • 15s halftime</li>
+            <li><strong>Pause:</strong> Button or switching tabs • Help (?) pauses and shows this panel</li>
+          </ul>
+          <button id="ackRulesBtn" class="btn">OK, I understand</button>
+        </div>
+        <div id="countdown" class="countdown" style="display:none">3</div>
+      </div>
+    </div>
       <div class="control-legend"><strong>Controls:</strong> WASD · T tackle · P pass · 1s=1m · 80m (15s HT)</div>
       <div id="hud">
         <div id="scoreHud">A <span id="scoreA">0</span> - <span id="scoreB">0</span> B</div>
@@ -57,6 +78,7 @@
     </div>
   </section>
 </main>
+<noscript>Please enable JavaScript to play the minigame and view the leaderboard.</noscript>
 
 <footer id="siteFooter" class="footer">
   <div class="odo-wrap">
