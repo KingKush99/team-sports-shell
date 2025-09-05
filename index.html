@@ -1,336 +1,119 @@
-<!doctype html>
-<html lang="en" data-theme="dark">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title data-i18n="title">Mini‑Sticks Hub v5 — Team Sports Shell</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <!-- Circular Profile button (top-left) -->
-  <a class="fab fab-profile" href="profile.html" title="Profile (Me)" aria-label="Profile">
-    <span class="fab-icon">👤</span>
-  </a>
-
-  <!-- Circular Hamburger (top-right) -->
-  <button class="fab fab-menu" id="menuFab" aria-haspopup="true" aria-expanded="false" title="Menu" aria-label="Menu">
-    <span class="fab-icon">☰</span>
-  </button>
-  <div id="dropdownMenu" class="dropdown hidden" role="menu" aria-label="Quick actions">
-    <div class="menu-head">
-      <span data-i18n="tokens">Tokens</span>: <b id="tokenCount">0</b>
+<!doctype html><html lang='en'><head>
+<meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Home — Team Sports Shell</title>
+<link rel='stylesheet' href='assets/css/style.css'>
+</head><body>
+<header class="site-header">
+  <div class="header-bar">
+    <a href="profile.html" class="circle-btn profile-btn" title="Profile"></a>
+    <div class="brand-wrap"><a class="brand" href="index.html">Team Sports Shell</a></div>
+    <button id="hamburgerBtn" class="circle-btn hamburger-btn" title="Menu">☰</button>
+    <div id="hamburgerMenu" class="dropdown-panel">
+      <button>Buy with Fiat</button>
+      <button>Buy with Crypto</button>
+      <button>Convert Gems → Tokens</button>
+      <button>Earn Tokens by Watching Videos</button>
     </div>
-    <button data-action="buy-crypto" role="menuitem" data-i18n="buy_crypto">₿ Buy with Crypto (+500)</button>
-    <button data-action="buy-fiat" role="menuitem" data-i18n="buy_fiat">💳 Buy with Fiat (+100)</button>
-    <button data-action="watch-earn" role="menuitem" data-i18n="watch_earn">▶ Watch Video → Earn (+50)</button>
-    <button data-action="transfer-gems" role="menuitem" data-i18n="transfer_gems">🔁 Convert Tokens → Gems</button>
-    <button data-action="toggle-mode" role="menuitem" data-i18n="toggle_mode">🌗 Light/Dark Mode</button>
-    <button data-action="themes" role="menuitem" data-i18n="themes">🎨 Themes</button>
   </div>
+  <nav class="tabs-nav"><a href="live.html" class="tab">Live</a><a href="index.html" class="tab">Home</a><a href="news.html" class="tab">News</a><a href="video.html" class="tab">Video</a><a href="scores.html" class="tab">Scores</a><a href="schedule.html" class="tab">Schedule</a><a href="stats.html" class="tab">Stats</a><a href="players.html" class="tab">Players</a><a href="fantasy.html" class="tab">Fantasy</a><a href="teams.html" class="tab">Teams</a><a href="rosters.html" class="tab">Rosters</a><a href="shop.html" class="tab">Shop</a><a href="tickets.html" class="tab">Tickets</a><a href="profile.html" class="tab">Profile</a></nav>
+</header>
+<main class="container">
+  <section id="standings">
+    <h2>League Standings</h2>
+    <div id="standingsTable"></div>
+  </section>
 
-  <!-- Themes Modal -->
-  <div id="themesModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Themes">
-    <div class="modal-header">
-      <h3 data-i18n="themes">Themes</h3>
-      <button class="close" data-close>×</button>
+  <section id="newsVideos" class="two-col">
+    <div><h3>News</h3>
+      <article class="news-card"><h4>Season Kickoff</h4><p>Training begins this week.</p></article>
+      <article class="news-card"><h4>Community Day</h4><p>Free clinic Saturday.</p></article>
     </div>
-    <div class="themes-grid" id="themesGrid"></div>
-    <p class="hint"><span data-i18n="theme_hint">First 3 are free. Others cost</span> <b>200</b> <span data-i18n="tokens">tokens</span>.</p>
-  </div>
+    <div><h3>Videos</h3>
+      <div class="video-embed">YouTube Placeholder</div>
+      <div class="video-embed">YouTube Placeholder</div>
+    </div>
+  </section>
 
-  <!-- Circular Mini Slots (bottom-right) as a drop-up modal, with lever -->
-  <button class="fab fab-slots" id="slotsFab" aria-controls="slotsModal" aria-expanded="false" title="Mini Slots" aria-label="Mini Slots">
-    <span class="fab-icon">🎰</span>
-  </button>
-  <div id="slotsModal" class="modal modal-dropup hidden sized" role="dialog" aria-modal="true" aria-label="Mini Slots">
-    <div class="modal-header">
-      <h3 data-i18n="mini_slots">Mini Slots</h3>
-      <button class="close" data-close>×</button>
+  <section id="game-and-leaderboard" class="tabs">
+    <div class="tab-head">
+      <button class="tab-btn active" data-tab="minigameTab">Mini Rugby</button>
+      <button class="tab-btn" data-tab="leaderboardTab">Minigame Leaderboard</button>
+      <div class="tab-spacer"></div>
+      <label class="play-for">Play for:</label>
+      <select id="teamSelect" class="team-select"></select>
+      <button id="pauseBtn" class="pause-btn">Pause ▌▌</button>
     </div>
-    <div class="slots-wrap">
-      <div class="lever" id="lever" title="Pull to spin" aria-label="Lever">
-        <div class="knob"></div>
+    <div id="minigameTab" class="tab-body active">
+      <canvas id="rugbyCanvas" width="1180" height="560"></canvas>
+      <div class="control-legend"><strong>Controls:</strong> WASD · T tackle · P pass · 1s=1m · 80m (15s HT)</div>
+      <div id="hud">
+        <div id="scoreHud">A <span id="scoreA">0</span> - <span id="scoreB">0</span> B</div>
+        <div id="clockHud"><span id="halfLabel">1st Half</span> — <span id="gameClock">00:00</span></div>
+        <div id="refMsg"></div>
       </div>
-      <div class="slots-window">
-        <div id="reelWrap" class="reels"></div>
-      </div>
     </div>
-    <div class="slots-controls">
-      <label data-i18n="bet">Bet:</label>
-      <select id="bet"><option>10</option><option>50</option><option>100</option><option>500</option><option>1000</option></select>
-      <label data-i18n="reels">Reels:</label>
-      <select id="reels"><option>3</option><option>4</option><option>5</option><option>6</option></select>
-      <button id="spinBtn" data-i18n="spin">Spin</button>
+    <div id="leaderboardTab" class="tab-body">
+      <div id="miniLeaderboard"></div>
     </div>
-    <p id="slotsResult" class="result"></p>
-  </div>
+  </section>
+</main>
 
-  <!-- Circular Multilingual Chatbot (bottom-left) with improved UI, same size as slots modal -->
-  <button class="fab fab-chat" id="chatFab" aria-controls="chatModal" aria-expanded="false" title="Chatbot" aria-label="Chatbot">
-    <span class="fab-icon">🤖</span>
-  </button>
-  <div id="chatModal" class="modal modal-dropup-left hidden sized" role="dialog" aria-modal="true" aria-label="Chatbot">
-    <div class="modal-header">
-      <h3 data-i18n="assistant">Assistant</h3>
-      <button class="close" data-close>×</button>
+<footer id="siteFooter" class="footer">
+  <div class="odo-wrap">
+    <div>
+      <div class="odo-label">ONLINE NOW</div>
+      <div class="odometer odometer--lined" id="od-online"></div>
     </div>
-    <div class="chat-body">
-      <div class="row split">
-        <label><span data-i18n="language">Language</span>:
-          <select id="siteLang">
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="pt">Português</option>
-          </select>
-        </label>
-        <label><span data-i18n="attach">Attach</span> <small>(img/txt)</small> <input type="file" id="file"></label>
-      </div>
-      <div id="chatLog" class="chat-log"></div>
-      <div class="row">
-        <input id="chatInput" placeholder="Type a message…" />
-        <button id="sendBtn" data-i18n="send">Send</button>
-      </div>
+    <div>
+      <div class="odo-label">ALL TIME VISITORS</div>
+      <div class="odometer odometer--lined" id="od-alltime"></div>
     </div>
   </div>
 
-  <!-- Header -->
-  <header class="site-header">
-    <nav class="tabs" role="tablist" aria-label="Primary">
-      <button class="tab" data-tab="live" aria-selected="true" data-i18n="live">🟢 Live</button>
-      <button class="tab" data-tab="home" data-i18n="home">Home</button>
-      <button class="tab" data-tab="news" data-i18n="news">News</button>
-      <button class="tab" data-tab="video" data-i18n="video">Video</button>
-      <button class="tab" data-tab="scores" data-i18n="scores">Scores</button>
-      <button class="tab" data-tab="schedule" data-i18n="schedule">Schedule</button>
-      <button class="tab" data-tab="stats" data-i18n="stats">Stats</button>
-      <button class="tab" data-tab="players" data-i18n="players">Players</button>
-      <button class="tab" data-tab="fantasy" data-i18n="fantasy">Fantasy</button>
-      <button class="tab" data-tab="teams" data-i18n="teams">Teams</button>
-      <button class="tab" data-tab="rosters" data-i18n="rosters">Rosters</button>
-      <button class="tab" data-tab="shop" data-i18n="shop">Shop</button>
-      <button class="tab" data-tab="tickets" data-i18n="tickets">Tickets</button>
-      <span class="live-badge" id="liveBadge">LIVE</span>
-    </nav>
-  </header>
-
-  <!-- Live score banner -->
-  <div id="scorebar" class="scorebar" role="complementary" aria-label="Live scores">
-    <strong data-i18n="live_scores">Live Scores</strong>
-    <span id="ticker">Loading…</span>
+  <div class="footer-cols">
+    <div class="col"><h4>ACCESSIBILITY</h4><a href="#">Accessibility Options</a><a href="#">Suggestions</a></div>
+    <div class="col"><h4>COMPANY</h4><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Responsible Gaming</a><a href="#">AML Policy</a><a href="#">Fair Play</a><a href="#">Credits</a></div>
+    <div class="col"><h4>COMPETITIONS</h4><a href="#">Tournaments</a><a href="#">Registration</a><a href="#">Prizes</a><a href="#">Player of the Month</a><a href="#">Wall of Fame</a><a href="#">Awards & Achievements</a></div>
+    <div class="col"><h4>LEGAL</h4><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Cookie Policy</a><a href="#">Responsible Gaming</a><a href="#">AML Policy</a><a href="#">Fair Play</a></div>
+    <div class="col"><h4>SUPPORT</h4><a href="#">Contact Us</a><a href="#">Help Center</a><a href="#">FAQs</a></div>
+    <div class="col"><h4>SOCIAL MEDIA</h4><div class="social-row"><span>f</span><span>t</span><span>◎</span><span>◐</span><span>▶</span></div></div>
   </div>
 
-  <!-- Content Sections -->
-  <main id="content">
-    <!-- LIVE -->
-    <section id="panel-live" class="panel active">
-      <h1 data-i18n="live_center">Union Live Center</h1>
-      <p data-i18n="live_desc">Real‑time ticker + featured matches.</p>
-      <div class="live-grid">
-        <div class="live-card">
-          <h3>Senior Men — Matchday</h3>
-          <p><span class="team">Irish</span> <b id="l1h">0</b> — <b id="l1a">0</b> <span class="team">Blues</span> <small id="l1m">0'</small></p>
-        </div>
-        <div class="live-card">
-          <h3>Senior Women — Matchday</h3>
-          <p><span class="team">Wolves</span> <b id="l2h">0</b> — <b id="l2a">0</b> <span class="team">Panthers</span> <small id="l2m">0'</small></p>
-        </div>
-      </div>
-    </section>
+  <div class="footer-bottom">
+    <label for="langSelect" class="lang">Language</label>
+    <select id="langSelect">
+      <option>English</option><option>Français</option><option>Español</option><option>Português</option>
+    </select>
+    <div class="store-links"><a href="#"> iOS App</a> <a href="#">Android App</a></div>
+  </div>
+</footer>
 
-    <!-- HOME with a mini‑rugby game -->
-    <section id="panel-home" class="panel">
-      <h1 data-i18n="welcome">Welcome to Mini‑Sticks Hub v5</h1>
-      <p data-i18n="home_desc">All new features added on top of v4 base.</p>
+<!-- Floating UI -->
+<button id="miniSlotsBtn" class="float-btn br" aria-label="Mini Slots">🎰</button>
+<div id="miniSlotsPanel" class="dropup-panel br" aria-live="polite">
+  <div class="panel-head">Mini Slots</div>
+  <div class="slots-config">
+    <div class="grow"></div>
+    <label>Bet:</label>
+    <select id="betSel"><option>10</option><option>25</option><option>50</option><option>100</option><option>500</option><option>1000</option></select>
+    <label>Reels:</label>
+    <select id="reelsSel"><option>3</option><option>4</option><option>5</option><option selected>6</option></select>
+    <button id="spinBtn" class="btn">Spin</button>
+  </div>
+  <div id="slotsGrid" class="slots-grid"></div>
+  <div id="slotsMsg"></div>
+</div>
 
-      <div class="rugby-ui">
-        <label><span data-i18n="team_a_color">Team A Color</span> <input type="color" id="colorA" value="#2ecc71"></label>
-        <label><span data-i18n="team_b_color">Team B Color</span> <input type="color" id="colorB" value="#e74c3c"></label>
-        <button id="rugbyStart" data-i18n="start_match">Start Match</button>
-        <span id="rugbyScore">0 : 0</span>
-      </div>
-      <canvas id="rugby" width="740" height="360" aria-label="Mini rugby 15 vs 15"></canvas>
-      <small data-i18n="rugby_hint">Tap/click to kick the ball toward cursor.</small>
+<button id="chatbotBtn" class="float-btn bl" aria-label="Chatbot">💬</button>
+<div id="chatbotPanel" class="dropup-panel bl">
+  <div class="panel-head">Assistant</div>
+  <div class="chatlog" id="chatlog"></div>
+  <div class="chatbox">
+    <input id="chatInput" placeholder="Type a message..." />
+    <button id="chatSend" class="btn">Send</button>
+  </div>
+</div>
 
-      <p><a href="profile.html" data-i18n="profile_page">Profile Page</a></p>
-    </section>
 
-    <section id="panel-news" class="panel">
-      <h1 data-i18n="news">News</h1>
-      <article class="post"><h3 data-i18n="news1_title">Season Kickoff</h3><p data-i18n="news1_body">Schedules are posted. Training begins this week.</p></article>
-      <article class="post"><h3 data-i18n="news2_title">Community Day</h3><p data-i18n="news2_body">Free skills clinic for Minis and Juniors this Saturday.</p></article>
-    </section>
-
-    <section id="panel-video" class="panel">
-      <h1 data-i18n="video">Video</h1>
-      <div class="video-embed">
-        <iframe title="Highlights" width="100%" height="480" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
-      </div>
-    </section>
-
-    <section id="panel-scores" class="panel">
-      <h1 data-i18n="scores">Scores</h1>
-      <table class="table">
-        <thead><tr><th data-i18n="competition">Competition</th><th data-i18n="home_team">Home</th><th data-i18n="score">Score</th><th data-i18n="away_team">Away</th><th data-i18n="date">Date</th></tr></thead>
-        <tbody id="scoresBody">
-          <tr><td>Sr Men</td><td>Irish</td><td>24–19</td><td>Blues</td><td>Sep 1</td></tr>
-          <tr><td>Sr Women</td><td>Wolves</td><td>12–12</td><td>Panthers</td><td>Sep 1</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section id="panel-schedule" class="panel">
-      <h1 data-i18n="schedule">Schedule</h1>
-      <table class="table">
-        <thead><tr><th data-i18n="competition">Competition</th><th data-i18n="match">Match</th><th data-i18n="venue">Venue</th><th data-i18n="date">Date</th><th data-i18n="time">Time</th></tr></thead>
-        <tbody>
-          <tr><td>Sr Men</td><td>Irish vs Blues</td><td>Lansdowne</td><td>Sep 10</td><td>14:00</td></tr>
-          <tr><td>Sr Women</td><td>Wolves vs Panthers</td><td>Terry Fox</td><td>Sep 10</td><td>16:00</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section id="panel-stats" class="panel">
-      <h1 data-i18n="stats">Stats</h1>
-      <table class="table">
-        <thead><tr><th data-i18n="player">Player</th><th data-i18n="gp">GP</th><th data-i18n="pts">PTS</th><th data-i18n="tries">Tries</th></tr></thead>
-        <tbody>
-          <tr><td>K. O’Connor</td><td>6</td><td>38</td><td>7</td></tr>
-          <tr><td>M. Singh</td><td>6</td><td>34</td><td>6</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <section id="panel-players" class="panel">
-      <h1 data-i18n="players">Players</h1>
-      <ul class="grid">
-        <li class="card">K. O’Connor — Wing</li>
-        <li class="card">M. Singh — Fly‑half</li>
-        <li class="card">A. Bouchard — Lock</li>
-        <li class="card">S. Chan — Scrum‑half</li>
-      </ul>
-    </section>
-
-    <section id="panel-fantasy" class="panel">
-      <h1 data-i18n="fantasy">Fantasy</h1>
-      <p data-i18n="fantasy_desc">Build your squad, earn points weekly from real matches. Captain gets 2×.</p>
-    </section>
-
-    <section id="panel-teams" class="panel">
-      <h1 data-i18n="teams">Teams</h1>
-      <ul class="grid">
-        <li class="card">Irish RFC</li>
-        <li class="card">Bytown Blues RFC</li>
-        <li class="card">Wolves RFC</li>
-        <li class="card">Panthers RFC</li>
-      </ul>
-    </section>
-
-    <section id="panel-rosters" class="panel">
-      <h1 data-i18n="rosters">Rosters</h1>
-      <p data-i18n="rosters_desc">Select a team to view today’s roster.</p>
-    </section>
-
-    <section id="panel-shop" class="panel">
-      <h1 data-i18n="shop">Shop</h1>
-      <ul class="shop">
-        <li><img alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='80'><rect width='120' height='80' fill='%23ccc'/></svg>"><div data-i18n="jersey">Home Jersey — $79</div><button data-i18n="add">Add</button></li>
-        <li><img alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='80'><rect width='120' height='80' fill='%23ccc'/></svg>"><div data-i18n="scarf">Scarf — $25</div><button data-i18n="add">Add</button></li>
-      </ul>
-    </section>
-
-    <section id="panel-tickets" class="panel">
-      <h1 data-i18n="tickets">Tickets</h1>
-      <p data-i18n="next_match">Next match: Irish vs Blues — Sep 10 • 14:00 — Lansdowne</p>
-      <button data-i18n="buy_tickets">Buy Tickets</button>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="visitors">
-      <div><small data-i18n="online_now">ONLINE NOW</small><div class="counter" id="onlineNow">1 1 2 5</div></div>
-      <div><small data-i18n="all_time">ALL TIME VISITORS</small><div class="counter" id="allTime">1 1 1 1 1 4</div></div>
-    </div>
-
-    <div class="columns">
-      <div>
-        <h4 class="teal" data-i18n="accessibility">ACCESSIBILITY</h4>
-        <ul>
-          <li><a href="#" data-i18n="access_opts">Accessibility Options</a></li>
-          <li><a href="#" data-i18n="suggestions">Suggestions</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="gold" data-i18n="company">COMPANY</h4>
-        <ul>
-          <li><a href="#" data-i18n="tos">Terms of Service</a></li>
-          <li><a href="#" data-i18n="privacy">Privacy Policy</a></li>
-          <li><a href="#" data-i18n="rg">Responsible Gaming</a></li>
-          <li><a href="#" data-i18n="aml">AML Policy</a></li>
-          <li><a href="#" data-i18n="fairplay">Fair Play</a></li>
-          <li><a href="#" data-i18n="credits">Credits</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="yellow" data-i18n="competitions">COMPETITIONS</h4>
-        <ul>
-          <li><a href="#" data-i18n="tournaments">Tournaments</a></li>
-          <li><a href="#" data-i18n="registration">Registration</a></li>
-          <li><a href="#" data-i18n="prizes">Prizes</a></li>
-          <li><a href="#" data-i18n="potm">Player of the Month</a></li>
-          <li><a href="#" data-i18n="hof">Wall of Fame</a></li>
-          <li><a href="#" data-i18n="awards">Awards & Achievements</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="purple" data-i18n="legal">LEGAL</h4>
-        <ul>
-          <li><a href="#" data-i18n="tos">Terms of Service</a></li>
-          <li><a href="#" data-i18n="privacy">Privacy Policy</a></li>
-          <li><a href="#" data-i18n="cookie">Cookie Policy</a></li>
-          <li><a href="#" data-i18n="rg">Responsible Gaming</a></li>
-          <li><a href="#" data-i18n="aml">AML Policy</a></li>
-          <li><a href="#" data-i18n="fairplay">Fair Play</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="white" data-i18n="support">SUPPORT</h4>
-        <ul>
-          <li><a href="#" data-i18n="contact">Contact Us</a></li>
-          <li><a href="#" data-i18n="help">Help Center</a></li>
-          <li><a href="#" data-i18n="faqs">FAQs</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="white" data-i18n="social_media">SOCIAL MEDIA</h4>
-        <div class="socials">
-          <a href="#" aria-label="Facebook">f</a>
-          <a href="#" aria-label="Twitter">t</a>
-          <a href="#" aria-label="Instagram">◎</a>
-          <a href="#" aria-label="Snapchat">◐</a>
-          <a href="#" aria-label="YouTube">▶</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="locale">
-        <label for="localeSel" class="sr-only">Language</label>
-        <select id="localeSel">
-          <option value="en">English</option>
-          <option value="fr">Français</option>
-          <option value="es">Español</option>
-          <option value="pt">Português</option>
-        </select>
-      </div>
-      <div class="apps">
-        <a href="#" class="store ios"> iOS App</a>
-        <a href="#" class="store android">🤖 Android App</a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
-</html>
+<script src='assets/js/global.js'></script>
+<script src='assets/js/game.js'></script></body></html>
